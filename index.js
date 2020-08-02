@@ -1,9 +1,19 @@
 const fs = require('fs')
+const getSimilarity = require('./src/similarity')
 let masterFile = process.argv[2]
-let compareFile = process.argv[3]
+let secondaryFile = process.argv[3]
 
 let master = JSON.parse(fs.readFileSync(masterFile, 'utf8'))
-let compare = JSON.parse(fs.readFileSync(compareFile, 'utf8'))
+let secondary = JSON.parse(fs.readFileSync(secondaryFile, 'utf8'))
 
-console.log('TCL: master', master)
-console.log('TCL: compare', compare)
+
+const similarityPercentage = getSimilarity(master, secondary)
+console.log(
+  'TCL: similarity:',
+  similarityPercentage,
+  ', percentage:',
+  `${similarityPercentage * 100}%`
+)
+
+// console.log('TCL: master', master)
+// console.log('TCL: secondary', secondary)
