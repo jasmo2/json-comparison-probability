@@ -1,3 +1,4 @@
+const INITIAL_SCORE_OBJ = { matchObjScore: 0, scoreByKey: 0 }
 /**
  * @param {object} obj
  * @returns sorted object by "key"
@@ -35,9 +36,9 @@ function sortObj(obj) {
  * @param {number} matchObjScore
  * @return currentScoreObject
  */
-function addScore(currentScore, scoreByKeyAdd = 1, matchObjScore = 1) {
+function addScore(currentScore, scoreByKey = 1, matchObjScore = 1) {
   const newScore = { ...currentScore }
-  newScore.scoreByKey += scoreByKeyAdd
+  newScore.scoreByKey += scoreByKey
   newScore.matchObjScore += matchObjScore
   return newScore
 }
@@ -58,6 +59,10 @@ function arrayValidation(arrayA, arrayB) {
       longestArr = arrayB
     }
 
+    /**NOTE:
+     * Validates if the elemets inside the array are
+     * objects or primitives, and after recursion reduce the score.
+     */
     const score = longestArr
       .map((_el, idx) => {
         return computeSimilarity(arrayA[idx], arrayB[idx])
@@ -71,10 +76,7 @@ function arrayValidation(arrayA, arrayB) {
           )
           return totalScore
         },
-        {
-          matchObjScore: 0,
-          scoreByKey: 0,
-        }
+        { ...INITIAL_SCORE_OBJ }
       )
 
     return { shallContinue: true, score }
@@ -90,6 +92,26 @@ function arrayValidation(arrayA, arrayB) {
  * @return percentage <=1 && computed >=0
  */
 function computeSimilarity(objA, objB) {
+  /**NOTE: arrayValidation() have acase in which need to take care of primitives.
+   * we should check the incoming objs are not objects, or are null
+   */
+
+  const typeA = typeof objA
+  const typeB = typeof objB
+
+  if (
+    typeA !== 'object' ||
+    typeB !== 'object' ||
+    typeA === null ||
+    typeB === null
+  ) {
+    const score = { ...INITIAL_SCORE_OBJ }
+    score = typeA === typeB ? addScore(score) : addScore(score, 1, 0)
+    score = objA === objB ? addScore(score) : addScore(score, 1, 0)
+
+    return score
+  }
+
   const keysA = Object.keys(objA)
   const keysB = Object.keys(objB)
   /** NOTE: I need to get the unique keys from both arrays
@@ -126,7 +148,6 @@ function computeSimilarity(objA, objB) {
               score.scoreByKey,
               score.matchObjScore
             )
-            continue
           }
         } else {
           currentScore = addScore(currentScore, 1, 0)
@@ -134,8 +155,9 @@ function computeSimilarity(objA, objB) {
       } else {
         currentScore = addScore(currentScore, 1, 0)
       }
+      return currentScore
     },
-    { matchObjScore: 0, scoreByKey: 0 }
+    { ...INITIAL_SCORE_OBJ }
   )
 
   return scoreObj
