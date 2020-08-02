@@ -28,6 +28,60 @@ function sortObj(obj) {
 
   return sortedObj
 }
+/**
+ *
+ * @param {object} currentScore
+ * @param {number} scoreByKeyAdd
+ * @param {number} matchObjScore
+ * @return currentScoreObject
+ */
+function addScore(currentScore, scoreByKeyAdd = 1, matchObjScore = 1) {
+  const newScore = { ...currentScore }
+  newScore.scoreByKey += scoreByKeyAdd
+  newScore.matchObjScore += matchObjScore
+  return newScore
+}
+
+/**
+ *
+ * @param {array, object} elementA
+ * @param {array, object} elementB
+ */
+function arrayValidation(arrayA, arrayB) {
+  if (Array.isArray(arrayA) || Array.isArray(arrayB)) {
+    let longestArr = null
+    if (Array.isArray(arrayA) && Array.isArray(arrayB)) {
+      longestArr = arrayA.length > arrayB.length ? arrayA : arrayB
+    } else if (Arrat.isArray(arrayA)) {
+      longestArr = arrayA
+    } else {
+      longestArr = arrayB
+    }
+
+    const score = longestArr
+      .map((_el, idx) => {
+        return computeSimilarity(arrayA[idx], arrayB[idx])
+      })
+      .reduce(
+        (totalScore, itemScore) => {
+          totalScore = addScore(
+            totalScore,
+            itemScore.scoreByKey,
+            itemScore.matchObjScore
+          )
+          return totalScore
+        },
+        {
+          matchObjScore: 0,
+          scoreByKey: 0,
+        }
+      )
+
+    return { shallContinue: true, score }
+  } else {
+    return { shallContinue: false, score: null }
+  }
+}
 
 /**
  *
@@ -48,16 +102,43 @@ function computeSimilarity(objA, objB) {
 
   let scoreObj = uniqueCombineKeys.reduce(
     (currentScore, key) => {
+      /**
+       * NOTE: if both objects have the same key then scoreByKey and matchObjKey will have an extra point, due to
+       * both contitions are true
+       *
+       * On the other hand one of the objects is missing the key, we need to track the scoreByKey has,
+       * but that objects differ in this key-value.
+       */
       if (keysA.includes(key) && keysB.includes(key)) {
-        currentScore.scoreByKey += 1
-        currentScore.matchObjScore += 1
+        const elementA = objA[key]
+        const elementB = objB[key]
+        currentScore = addScore(currentScore)
+        if (
+          typeof elementA === typeof elementB &&
+          Array.isArray(elementA) === Array.isArray(elementB)
+        ) {
+          addScore(currentScore)
+          /** First lets take in account the Arrays then objects */
+          const { shallContinue, score } = arrayValidation(elementA, elementB)
+          if (shallContinue) {
+            currentScore = addScore(
+              currentScore,
+              score.scoreByKey,
+              score.matchObjScore
+            )
+            continue
+          }
+        } else {
+          currentScore = addScore(currentScore, 1, 0)
+        }
       } else {
+        currentScore = addScore(currentScore, 1, 0)
       }
     },
     { matchObjScore: 0, scoreByKey: 0 }
   )
 
-  return 1
+  return scoreObj
 }
 
 /**
