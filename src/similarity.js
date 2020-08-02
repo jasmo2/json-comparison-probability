@@ -45,8 +45,24 @@ function addScore(currentScore, scoreByKey = 1, matchObjScore = 1) {
 
 /**
  *
+ * @param {array, object} objA
+ * @param {array, object} objB
+ * @returns {shallContinueToNextIteration: boolean, score: number}
+ */
+function objectValidation(objA, objB) {
+  if (typeof objA === 'object') {
+    const score = computeSimilarity(objA, objB)
+    return { shallContinueToNextIteration: true, score }
+  } else {
+    return { shallContinueToNextIteration: false, score: null }
+  }
+}
+
+/**
+ *
  * @param {array, object} elementA
  * @param {array, object} elementB
+ * @returns {shallContinueToNextIteration: boolean, score: number}
  */
 function arrayValidation(arrayA, arrayB) {
   if (Array.isArray(arrayA) || Array.isArray(arrayB)) {
@@ -79,9 +95,9 @@ function arrayValidation(arrayA, arrayB) {
         { ...INITIAL_SCORE_OBJ }
       )
 
-    return { shallContinue: true, score }
+    return { shallContinueToNextIteration: true, score }
   } else {
-    return { shallContinue: false, score: null }
+    return { shallContinueToNextIteration: false, score: null }
   }
 }
 
@@ -107,13 +123,17 @@ function computeSimilarity(objA, objB) {
   ) {
     const score = { ...INITIAL_SCORE_OBJ }
     score = typeA === typeB ? addScore(score) : addScore(score, 1, 0)
+    typeA === typeB && console.log('TCL: typeA === typeB', score)
     score = objA === objB ? addScore(score) : addScore(score, 1, 0)
+    objA === objB && console.log('TCL: objA === objB', score)
 
     return score
   }
 
   const keysA = Object.keys(objA)
   const keysB = Object.keys(objB)
+  console.log('TCL: computeSimilarity -> keysA', keysA)
+  console.log('TCL: computeSimilarity -> keysB', keysB)
   /** NOTE: I need to get the unique keys from both arrays
    * as discuss in this stack overflow post a good solution for
    * es6 is using "Set()"
@@ -139,15 +159,51 @@ function computeSimilarity(objA, objB) {
           typeof elementA === typeof elementB &&
           Array.isArray(elementA) === Array.isArray(elementB)
         ) {
-          addScore(currentScore)
+          currentScore = addScore(currentScore)
+          console.log('TCL: computeSimilarity -> currentScore', currentScore)
           /** First lets take in account the Arrays then objects */
-          const { shallContinue, score } = arrayValidation(elementA, elementB)
-          if (shallContinue) {
+          const { shallContinueToNextIteration, score } = arrayValidation(
+            elementA,
+            elementB
+          )
+          if (shallContinueToNextIteration) {
             currentScore = addScore(
               currentScore,
               score.scoreByKey,
               score.matchObjScore
             )
+            console.log('TCL: arrayValidation -> currentScore', currentScore)
+          } else {
+            const { shallContinueToNextIteration, score } = objectValidation(
+              elementA,
+              elementB
+            )
+            if (shallContinueToNextIteration) {
+              console.log(
+                'TCL: computeSimilarity -> objectValidation',
+                elementA,
+                elementB
+              )
+              currentScore = addScore(
+                currentScore,
+                score.scoreByKey,
+                score.matchObjScore
+              )
+              console.log('currentScore', objectValidation)
+            } else {
+              console.log(
+                'TCL: elementA == elementB',
+                elementA,
+                elementB,
+                elementA == elementB
+              )
+              currentScore =
+                elementA == elementB
+                  ? addScore(currentScore)
+                  : addScore(currentScore, 1, 0)
+
+              console.log('currentScore', currentScore)
+            }
           }
         } else {
           currentScore = addScore(currentScore, 1, 0)
@@ -155,6 +211,7 @@ function computeSimilarity(objA, objB) {
       } else {
         currentScore = addScore(currentScore, 1, 0)
       }
+      console.log(currentScore)
       return currentScore
     },
     { ...INITIAL_SCORE_OBJ }
