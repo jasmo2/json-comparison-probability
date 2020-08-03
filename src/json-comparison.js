@@ -248,7 +248,6 @@ function getSimilarity(objA, objB) {
 }
 
 exports.getSimilarity = getSimilarity
-exports.sortObj = sortObj
 exports.addScore = addScore
 exports.objectValidation = objectValidation
 exports.arrayValidation = arrayValidation
