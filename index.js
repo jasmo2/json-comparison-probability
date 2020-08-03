@@ -1,7 +1,7 @@
 const fs = require('fs')
 const JSONComparison = require('./src/json-comparison')
-let masterFile = process.argv[2]
-let secondaryFile = process.argv[3]
+let masterFile = process.env.npm_config_objA
+let secondaryFile = process.env.npm_config_objB
 
 let master = JSON.parse(fs.readFileSync(masterFile, 'utf8'))
 let secondary = JSON.parse(fs.readFileSync(secondaryFile, 'utf8'))
