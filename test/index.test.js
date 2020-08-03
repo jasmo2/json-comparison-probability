@@ -1,10 +1,8 @@
 const mocks = require('./__mocks__')
-const {
-  areObjectsDifferent,
-  areObjectsEqual,
-  computeSimilarity,
-  getSimilarity,
-} = require('../src/json-comparison')
+const { getSimilarity } = require('../src/json-comparison')
+const { areObjectsDifferent, areObjectsEqual } = require('../src/utils/basic')
+const { computeSimilarity } = require('../src/utils/compute')
+
 describe('Utility functions', () => {
   const { differentObj, objA, objAUnorder } = mocks
   it('it validates both objects match even if unorganize', () => {
