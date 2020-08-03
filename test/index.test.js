@@ -1,29 +1,46 @@
 const mocks = require('./__mocks__')
-const JSONComparison = require('../src/json-comparison')
+const {
+  areObjectsDifferent,
+  areObjectsEqual,
+  computeSimilarity,
+  getSimilarity,
+} = require('../src/json-comparison')
 describe('Utility functions', () => {
-  const { differentObj, orderObj, unorderObj } = mocks
+  const { differentObj, objA, objAUnorder } = mocks
   it('it validates both objects match even if unorganize', () => {
-    expect(JSONComparison.areObjectsEqual(unorderObj, orderObj)).toEqual(true)
+    expect(areObjectsEqual(objAUnorder, objA)).toEqual(true)
   })
 
   it('it validates objects are completly different', () => {
-    expect(JSONComparison.areObjectsDifferent(orderObj, differentObj)).toEqual(
-      true
-    )
+    expect(areObjectsDifferent(objA, differentObj)).toEqual(true)
   })
 })
 
 describe('Compute JSON comparison', () => {
-  const { orderObj, objB } = mocks
+  const { objA, objB } = mocks
   it('it gets scoreByKey on calculation', () => {
-    const { scoreByKey } = JSONComparison.computeSimilarity(orderObj, objB)
+    const { scoreByKey } = computeSimilarity(objA, objB)
     expect(scoreByKey).toEqual(10)
   })
 
   it('it gets matchObjScore on calculation', () => {
-    const { orderObj } = mocks
+    const { objA } = mocks
 
-    const { matchObjScore } = JSONComparison.computeSimilarity(orderObj, objB)
+    const { matchObjScore } = computeSimilarity(objA, objB)
     expect(matchObjScore).toEqual(9)
+  })
+})
+
+describe('Compare how similiar are the JSON - Integration', () => {
+  const { objA, objB, objAUnorder, differentObj } = mocks
+
+  it('Complete different Objects', () => {
+    expect(getSimilarity(objA, differentObj)).toEqual(0)
+  })
+  it('Similar Objects', () => {
+    expect(getSimilarity(objA, objAUnorder)).toEqual(1)
+  })
+  it('Computes similarity between objects', () => {
+    expect(getSimilarity(objA, objB)).toEqual(0.9)
   })
 })

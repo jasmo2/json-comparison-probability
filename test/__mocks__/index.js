@@ -1,10 +1,10 @@
-exports.unorderObj = {
+exports.objAUnorder = {
   b: 'b',
   a: 'a',
   c: 'c',
 }
 
-exports.orderObj = {
+exports.objA = {
   a: 'a',
   b: 'b',
   c: 'c',
