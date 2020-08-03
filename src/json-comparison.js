@@ -247,4 +247,10 @@ function getSimilarity(objA, objB) {
   return score
 }
 
-module.exports = getSimilarity
+exports.getSimilarity = getSimilarity
+exports.addScore = addScore
+exports.objectValidation = objectValidation
+exports.arrayValidation = arrayValidation
+exports.computeSimilarity = computeSimilarity
+exports.areObjectsDifferent = areObjectsDifferent
+exports.areObjectsEqual = areObjectsEqual
