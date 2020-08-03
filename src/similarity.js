@@ -123,17 +123,13 @@ function computeSimilarity(objA, objB) {
   ) {
     const score = { ...INITIAL_SCORE_OBJ }
     score = typeA === typeB ? addScore(score) : addScore(score, 1, 0)
-    typeA === typeB && console.log('TCL: typeA === typeB', score)
     score = objA === objB ? addScore(score) : addScore(score, 1, 0)
-    objA === objB && console.log('TCL: objA === objB', score)
 
     return score
   }
 
   const keysA = Object.keys(objA)
   const keysB = Object.keys(objB)
-  console.log('TCL: computeSimilarity -> keysA', keysA)
-  console.log('TCL: computeSimilarity -> keysB', keysB)
   /** NOTE: I need to get the unique keys from both arrays
    * as discuss in this stack overflow post a good solution for
    * es6 is using "Set()"
@@ -160,7 +156,6 @@ function computeSimilarity(objA, objB) {
           Array.isArray(elementA) === Array.isArray(elementB)
         ) {
           currentScore = addScore(currentScore)
-          console.log('TCL: computeSimilarity -> currentScore', currentScore)
           /** First lets take in account the Arrays then objects */
           const { shallContinueToNextIteration, score } = arrayValidation(
             elementA,
@@ -172,37 +167,22 @@ function computeSimilarity(objA, objB) {
               score.scoreByKey,
               score.matchObjScore
             )
-            console.log('TCL: arrayValidation -> currentScore', currentScore)
           } else {
             const { shallContinueToNextIteration, score } = objectValidation(
               elementA,
               elementB
             )
             if (shallContinueToNextIteration) {
-              console.log(
-                'TCL: computeSimilarity -> objectValidation',
-                elementA,
-                elementB
-              )
               currentScore = addScore(
                 currentScore,
                 score.scoreByKey,
                 score.matchObjScore
               )
-              console.log('currentScore', objectValidation)
             } else {
-              console.log(
-                'TCL: elementA == elementB',
-                elementA,
-                elementB,
-                elementA == elementB
-              )
               currentScore =
                 elementA == elementB
                   ? addScore(currentScore)
                   : addScore(currentScore, 1, 0)
-
-              console.log('currentScore', currentScore)
             }
           }
         } else {
@@ -211,7 +191,7 @@ function computeSimilarity(objA, objB) {
       } else {
         currentScore = addScore(currentScore, 1, 0)
       }
-      console.log(currentScore)
+      // console.log(currentScore)
       return currentScore
     },
     { ...INITIAL_SCORE_OBJ }
@@ -261,7 +241,10 @@ function getSimilarity(objA, objB) {
     return 1
   }
 
-  const percentage = computeSimilarity(objA, objB)
+  const { matchObjScore, scoreByKey } = computeSimilarity(objA, objB)
+  const score = matchObjScore / scoreByKey
+
+  return score
 }
 
 module.exports = getSimilarity
